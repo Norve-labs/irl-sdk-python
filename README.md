@@ -1,6 +1,6 @@
 # irl-sdk — Python SDK for the IRL Engine
 
-[![PyPI version](https://img.shields.io/badge/pypi-0.2.0-blue)](https://pypi.org/project/irl-sdk/)
+[![PyPI version](https://img.shields.io/badge/pypi-0.3.0-blue)](https://pypi.org/project/irl-sdk/)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://pypi.org/project/irl-sdk/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![IRL Engine](https://img.shields.io/badge/IRL%20Engine-v1.2.0%20compatible-brightgreen)](https://github.com/GabrielGauss/IRL-engine-AX)
@@ -12,9 +12,12 @@ pre-execution compliance gateway for autonomous AI trading agents.
 - Constructs and signs the authorize request
 - Returns a sealed `trace_id` and `reasoning_hash` before any order reaches the exchange
 
-## What's new in 0.2.0
+## What's new in 0.3.0
 
-Full L2 heartbeat integration — the SDK now fetches, verifies, and attaches Ed25519-signed MTA heartbeats automatically. No changes to your `authorize()` call.
+- **Retry + circuit breaker**: All API calls retry on 5xx responses with exponential backoff (default: 3 retries, 0.5 s base delay). Configurable via `max_retries` and `backoff_base`.
+- **Multi-agent trace linking**: `AuthorizeRequest.parent_trace_id` links a sub-agent call to its orchestrator, enabling full causal chain audits via `get_trace_chain()`.
+- **Extended order types**: `OrderType` now includes `VWAP`, `IOC`, `FOK`, `POST_ONLY`, `PEGGED`, `TRAILING_STOP`, `ICEBERG`.
+- **`bind_execution()` + `get_trace()` + `get_trace_chain()`**: Full post-trade and audit chain methods.
 
 ## Install
 
@@ -88,15 +91,18 @@ AUTHORIZED
 
 ## API Reference
 
-### `IRLClient(irl_url, api_token, mta_url)`
+### `IRLClient(irl_url, api_token, mta_url, timeout, max_retries, backoff_base)`
 
 Async context manager. All parameters are positional.
 
-| Parameter | Description |
-|-----------|-------------|
-| `irl_url` | IRL Engine base URL |
-| `api_token` | Bearer token (from `IRL_API_TOKENS` env on the engine) |
-| `mta_url` | MTA operator URL for heartbeat fetch. Pass empty string `""` when `LAYER2_ENABLED=false`. |
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `irl_url` | str | — | IRL Engine base URL |
+| `api_token` | str | — | Bearer token (from `IRL_API_TOKENS` env on the engine) |
+| `mta_url` | str | — | MTA operator URL for heartbeat fetch. Pass empty string `""` when `LAYER2_ENABLED=false`. |
+| `timeout` | float | `5.0` | HTTP request timeout in seconds |
+| `max_retries` | int | `3` | Max retry attempts on 5xx responses |
+| `backoff_base` | float | `0.5` | Base delay (seconds) for exponential backoff between retries |
 
 ### `client.authorize(req: AuthorizeRequest) → AuthorizeResult`
 
@@ -120,6 +126,7 @@ Async context manager. All parameters are positional.
 | `notional_currency` | str | yes | e.g. `"USD"` |
 | `client_order_id` | str | no | Your internal order reference |
 | `agent_valid_time` | int | no | Model inference timestamp (ms). Defaults to now. |
+| `parent_trace_id` | str | no | `trace_id` of the orchestrator decision that triggered this sub-agent call. Enables `get_trace_chain()` causal audits. |
 
 ### `AuthorizeResult` fields
 
@@ -145,11 +152,26 @@ TradeAction.NEUTRAL  # "Neutral"
 ```python
 from irl_sdk import OrderType
 
-OrderType.MARKET  # "MARKET"
-OrderType.LIMIT   # "LIMIT"
-OrderType.STOP    # "STOP"
-OrderType.TWAP    # "TWAP"
-OrderType.VWAP    # "VWAP"
+OrderType.MARKET        # "MARKET"
+OrderType.LIMIT         # "LIMIT"
+OrderType.STOP          # "STOP"
+OrderType.TWAP          # "TWAP"
+OrderType.VWAP          # "VWAP"
+OrderType.IOC           # "IOC"
+OrderType.FOK           # "FOK"
+OrderType.POST_ONLY     # "POST_ONLY"
+OrderType.PEGGED        # "PEGGED"
+OrderType.TRAILING_STOP # "TRAILING_STOP"
+OrderType.ICEBERG       # "ICEBERG"
+```
+
+### `client.get_trace_chain(trace_id: str) → dict`
+
+Returns the full causal ancestry chain for a trace. Useful for multi-agent audit trails where sub-agent decisions trace back to an orchestrator.
+
+```python
+chain = await client.get_trace_chain(result.trace_id)
+# {"trace_id": "...", "ancestry": [...], "children": [...]}
 ```
 
 ## Error Handling

@@ -19,6 +19,13 @@ class OrderType(str, Enum):
     STOP = "STOP"
     STOP_LIMIT = "STOP_LIMIT"
     TWAP = "TWAP"
+    VWAP = "VWAP"
+    IOC = "IOC"
+    FOK = "FOK"
+    POST_ONLY = "POST_ONLY"
+    PEGGED = "PEGGED"
+    TRAILING_STOP = "TRAILING_STOP"
+    ICEBERG = "ICEBERG"
 
 
 @dataclass
@@ -48,6 +55,9 @@ class AuthorizeRequest:
     # Temporal context
     agent_valid_time: int = 0        # Unix ms of the agent's decision time
 
+    # Multi-agent linking — set when this decision was triggered by another agent's trace
+    parent_trace_id: Optional[str] = None
+
     # Filled automatically by IRLClient.authorize()
     heartbeat: Optional[dict] = None
     regulatory: Optional[dict] = None
@@ -59,3 +69,19 @@ class AuthorizeResult:
     reasoning_hash: str
     authorized: bool
     shadow_blocked: bool
+
+
+@dataclass
+class BindExecutionRequest:
+    trace_id: str
+    exchange_tx_id: str
+    execution_status: str            # "Filled" | "PartialFill" | "Rejected" | "Expired"
+    asset: str
+    executed_quantity: float
+    execution_price: float
+
+
+@dataclass
+class BindExecutionResult:
+    final_proof: str
+    status: str

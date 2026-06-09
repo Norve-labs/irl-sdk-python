@@ -25,12 +25,18 @@ Usage:
 
 from __future__ import annotations
 
+import asyncio
 import time
 from typing import Optional
 
 import httpx
 
-from .models import AuthorizeRequest, AuthorizeResult
+from .models import (
+    AuthorizeRequest,
+    AuthorizeResult,
+    BindExecutionRequest,
+    BindExecutionResult,
+)
 
 
 class IRLClient:
@@ -47,11 +53,15 @@ class IRLClient:
         api_token: str,
         mta_url: str,
         timeout: float = 5.0,
+        max_retries: int = 3,
+        backoff_base: float = 0.5,
     ) -> None:
         self._irl_url = irl_url.rstrip("/")
         self._mta_url = mta_url.rstrip("/")
         self._headers = {"Authorization": f"Bearer {api_token}"}
         self._http = httpx.AsyncClient(timeout=timeout)
+        self._max_retries = max_retries
+        self._backoff_base = backoff_base
 
     async def authorize(self, req: AuthorizeRequest) -> AuthorizeResult:
         """Fetch a fresh heartbeat and submit a trade intent for authorization.
@@ -67,11 +77,7 @@ class IRLClient:
 
         body = self._build_body(req, hb)
 
-        resp = await self._http.post(
-            f"{self._irl_url}/irl/authorize",
-            json=body,
-            headers=self._headers,
-        )
+        resp = await self._post_with_retry(f"{self._irl_url}/irl/authorize", json=body)
         resp.raise_for_status()
         data = resp.json()
 
@@ -82,6 +88,56 @@ class IRLClient:
             shadow_blocked=data.get("shadow_blocked", False),
         )
 
+    async def bind_execution(self, req: BindExecutionRequest) -> BindExecutionResult:
+        """Bind an exchange execution to a previously authorized trace.
+
+        Call after the exchange confirms the order. Computes and stores the
+        final_proof that closes the audit chain.
+
+        Raises:
+            httpx.HTTPStatusError: on 4xx/5xx from IRL Engine
+        """
+        resp = await self._post_with_retry(
+            f"{self._irl_url}/irl/bind-execution",
+            json={
+                "trace_id": req.trace_id,
+                "exchange_tx_id": req.exchange_tx_id,
+                "execution_status": req.execution_status,
+                "asset": req.asset,
+                "executed_quantity": req.executed_quantity,
+                "execution_price": req.execution_price,
+            },
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        return BindExecutionResult(
+            final_proof=data["final_proof"],
+            status=data["status"],
+        )
+
+    async def get_trace(self, trace_id: str) -> dict:
+        """Retrieve the full cryptographic trace for forensic replay.
+
+        Raises:
+            httpx.HTTPStatusError: on 4xx/5xx (404 if trace not found)
+        """
+        resp = await self._get_with_retry(f"{self._irl_url}/irl/trace/{trace_id}")
+        resp.raise_for_status()
+        return resp.json()
+
+    async def get_trace_chain(self, trace_id: str) -> dict:
+        """Return the full ancestor chain for a trace (multi-agent audit trail).
+
+        Walks from the given trace up to the root orchestrator, returning
+        all ancestor nodes in depth-first order (root first).
+
+        Raises:
+            httpx.HTTPStatusError: on 4xx/5xx
+        """
+        resp = await self._get_with_retry(f"{self._irl_url}/irl/trace/{trace_id}/chain")
+        resp.raise_for_status()
+        return resp.json()
+
     async def close(self) -> None:
         await self._http.aclose()
 
@@ -90,6 +146,26 @@ class IRLClient:
 
     async def __aexit__(self, *_: object) -> None:
         await self.close()
+
+    async def _post_with_retry(self, url: str, json: dict) -> httpx.Response:
+        """POST with exponential backoff retry on 5xx responses."""
+        for attempt in range(self._max_retries + 1):
+            resp = await self._http.post(url, json=json, headers=self._headers)
+            if resp.status_code < 500 or attempt == self._max_retries:
+                return resp
+            delay = self._backoff_base * (2 ** attempt)
+            await asyncio.sleep(delay)
+        return resp  # unreachable; satisfies type checker
+
+    async def _get_with_retry(self, url: str) -> httpx.Response:
+        """GET with exponential backoff retry on 5xx responses."""
+        for attempt in range(self._max_retries + 1):
+            resp = await self._http.get(url, headers=self._headers)
+            if resp.status_code < 500 or attempt == self._max_retries:
+                return resp
+            delay = self._backoff_base * (2 ** attempt)
+            await asyncio.sleep(delay)
+        return resp
 
     async def _fetch_heartbeat(self) -> dict:
         resp = await self._http.get(f"{self._mta_url}/v1/irl/heartbeat")
@@ -140,5 +216,7 @@ class IRLClient:
             body["stop_price"] = req.stop_price
         if req.regulatory is not None:
             body["regulatory"] = req.regulatory
+        if req.parent_trace_id is not None:
+            body["parent_trace_id"] = req.parent_trace_id
 
         return body
