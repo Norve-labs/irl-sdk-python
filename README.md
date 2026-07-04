@@ -1,3 +1,12 @@
+<div align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/brand/logo-mono.svg">
+  <img src=".github/brand/logo-green.svg" alt="MacroPulse" width="72" height="72">
+</picture>
+
+<sub>Part of the <a href="https://github.com/GabrielGauss/macropulse-platform">MacroPulse platform</a></sub>
+</div>
+
 # irl-sdk — Python SDK for the IRL Engine
 
 [![PyPI version](https://img.shields.io/badge/pypi-0.3.0-blue)](https://pypi.org/project/irl-sdk/)
@@ -216,3 +225,9 @@ substitutes a zero heartbeat internally.
 ## License
 
 MIT
+
+---
+
+<div align="center">
+<sub>Part of the <a href="https://github.com/GabrielGauss/macropulse-platform">MacroPulse platform</a> · <a href="https://macropulse.live">macropulse.live</a> · <a href="https://macropulse.live/irl">IRL Engine</a></sub>
+</div>
