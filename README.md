@@ -4,7 +4,7 @@
   <img src=".github/brand/logo-green.svg" alt="MacroPulse" width="72" height="72">
 </picture>
 
-<sub>Part of the <a href="https://github.com/GabrielGauss/macropulse-platform">MacroPulse platform</a></sub>
+<sub>Part of the <a href="https://github.com/macropulse-lab/macropulse-platform">MacroPulse platform</a></sub>
 </div>
 
 # irl-sdk — Python SDK for the IRL Engine
@@ -12,7 +12,7 @@
 [![PyPI version](https://img.shields.io/badge/pypi-0.3.0-blue)](https://pypi.org/project/irl-sdk/)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://pypi.org/project/irl-sdk/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![IRL Engine](https://img.shields.io/badge/IRL%20Engine-v1.2.0%20compatible-brightgreen)](https://github.com/GabrielGauss/IRL-engine-AX)
+[![IRL Engine](https://img.shields.io/badge/IRL%20Engine-v1.2.0%20compatible-brightgreen)](https://github.com/macropulse-lab/irl)
 
 Async Python client for the [IRL Engine](https://irl.macropulse.live) — the cryptographic
 pre-execution compliance gateway for autonomous AI trading agents.
@@ -217,10 +217,11 @@ substitutes a zero heartbeat internally.
 
 | Repo | Description |
 |---|---|
-| [IRL-engine-AX](https://github.com/GabrielGauss/IRL-engine-AX) | Core IRL Engine |
-| [irl-sdk-ts](https://github.com/GabrielGauss/irl-sdk-ts) | TypeScript/Node.js SDK |
-| [irl-public-docs](https://github.com/GabrielGauss/irl-public-docs) | Public documentation hub |
-| [macropulse](https://github.com/GabrielGauss/macropulse) | MacroPulse — MTA operator |
+| [irl](https://github.com/macropulse-lab/irl) | Core IRL Engine (FSL-1.1-ALv2) |
+| [irl-gateway](https://github.com/macropulse-lab/irl-gateway) | MCP server: AI agents trade through IRL (`pip install irl-gateway`) |
+| [irl-sdk-ts](https://github.com/macropulse-lab/irl-sdk-ts) | TypeScript/Node.js SDK |
+| [irl-public-docs](https://github.com/macropulse-lab/irl-public-docs) | Public documentation hub |
+| [MacroPulse](https://macropulse.live) | One optional signed regime source (MTA) |
 
 ## License
 
@@ -229,5 +230,5 @@ MIT
 ---
 
 <div align="center">
-<sub>Part of the <a href="https://github.com/GabrielGauss/macropulse-platform">MacroPulse platform</a> · <a href="https://macropulse.live">macropulse.live</a> · <a href="https://macropulse.live/irl">IRL Engine</a></sub>
+<sub>Part of the <a href="https://github.com/macropulse-lab/macropulse-platform">MacroPulse platform</a> · <a href="https://macropulse.live">macropulse.live</a> · <a href="https://macropulse.live/irl">IRL Engine</a></sub>
 </div>
