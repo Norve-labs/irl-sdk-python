@@ -17,12 +17,13 @@
 Async Python client for the [IRL Engine](https://irl.macropulse.live) — the cryptographic
 pre-execution compliance gateway for autonomous AI trading agents.
 
-- Fetches a signed Layer 2 heartbeat from the MTA operator automatically
+- Optionally fetches a signed Layer 2 heartbeat from a regime operator (MTA), when your IRL server uses one
 - Constructs and signs the authorize request
 - Returns a sealed `trace_id` and `reasoning_hash` before any order reaches the exchange
 
 ## What's new in 0.3.0
 
+- **No regime operator required**: `mta_url` is optional. Without it the SDK sends no heartbeat, which is what an IRL server with `MTA_MODE=none` (agent caps only) expects. `IRLClient(IRL_URL, API_TOKEN)` is enough.
 - **Retry + circuit breaker**: All API calls retry on 5xx responses with exponential backoff (default: 3 retries, 0.5 s base delay). Configurable via `max_retries` and `backoff_base`.
 - **Multi-agent trace linking**: `AuthorizeRequest.parent_trace_id` links a sub-agent call to its orchestrator, enabling full causal chain audits via `get_trace_chain()`.
 - **Extended order types**: `OrderType` now includes `VWAP`, `IOC`, `FOK`, `POST_ONLY`, `PEGGED`, `TRAILING_STOP`, `ICEBERG`.
@@ -43,13 +44,12 @@ import asyncio
 from irl_sdk import IRLClient, AuthorizeRequest, TradeAction, OrderType
 
 IRL_URL   = "https://irl.macropulse.live"
-MTA_URL   = "https://api.macropulse.live"
 API_TOKEN = "your-irl-api-token"
 AGENT_ID  = "your-agent-uuid"           # from POST /irl/agents
 MODEL_HASH = "your-model-sha256-hex"    # 64-char hex
 
 async def main():
-    async with IRLClient(IRL_URL, API_TOKEN, MTA_URL) as client:
+    async with IRLClient(IRL_URL, API_TOKEN) as client:
         req = AuthorizeRequest(
             agent_id=AGENT_ID,
             model_id="my-model-v1",
@@ -108,15 +108,15 @@ Async context manager. All parameters are positional.
 |-----------|------|---------|-------------|
 | `irl_url` | str | — | IRL Engine base URL |
 | `api_token` | str | — | Bearer token (from `IRL_API_TOKENS` env on the engine) |
-| `mta_url` | str | — | MTA operator URL for heartbeat fetch. Pass empty string `""` when `LAYER2_ENABLED=false`. |
+| `mta_url` | str \| None | `None` | Regime operator (MTA) URL. Set it only if your IRL server has `LAYER2_ENABLED=true`; the SDK then fetches a fresh signed heartbeat per call. Unset or `""` sends no heartbeat. |
 | `timeout` | float | `5.0` | HTTP request timeout in seconds |
 | `max_retries` | int | `3` | Max retry attempts on 5xx responses |
 | `backoff_base` | float | `0.5` | Base delay (seconds) for exponential backoff between retries |
 
 ### `client.authorize(req: AuthorizeRequest) → AuthorizeResult`
 
-1. Fetches a fresh signed heartbeat from `{mta_url}/v1/irl/heartbeat`
-2. POSTs to `{irl_url}/irl/authorize` with the heartbeat and request payload
+1. If `mta_url` is set, fetches a fresh signed heartbeat from `{mta_url}/v1/irl/heartbeat`
+2. POSTs to `{irl_url}/irl/authorize` with the request payload (and the heartbeat, if any)
 3. Returns `AuthorizeResult`
 
 ### `AuthorizeRequest` fields
@@ -199,8 +199,9 @@ contains `{"error": "ERROR_CODE", "message": "..."}`. Common codes:
 
 ## Layer 2 (Heartbeat) Details
 
-When `LAYER2_ENABLED=true` on the engine (default), every authorize request must
-carry a `SignedHeartbeat`. The SDK fetches this automatically from `{mta_url}/v1/irl/heartbeat`.
+Only relevant when the engine runs with a regime operator and `LAYER2_ENABLED=true`:
+every authorize request must then carry a `SignedHeartbeat`, which the SDK fetches
+from `{mta_url}/v1/irl/heartbeat` when you pass `mta_url`.
 
 The heartbeat binds each request to a specific MTA broadcast:
 - `sequence_id` — strictly monotone (anti-replay)
@@ -208,8 +209,8 @@ The heartbeat binds each request to a specific MTA broadcast:
 - `mta_ref` — SHA-256 of the raw `/v1/regime/current` HTTP response body
 - `signature` — Ed25519 signature by the MTA operator
 
-For local dev with `LAYER2_ENABLED=false`, pass `mta_url=""`. The engine
-substitutes a zero heartbeat internally.
+With `MTA_MODE=none` or `LAYER2_ENABLED=false` (the public IRL server runs this way),
+leave `mta_url` unset: no heartbeat is sent and only the agent's own mandate applies.
 
 ---
 

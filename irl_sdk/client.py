@@ -5,7 +5,6 @@ Usage:
     client = IRLClient(
         irl_url="https://irl.macropulse.live",
         api_token="your-token",
-        mta_url="https://api.macropulse.live",
     )
 
     result = await client.authorize(
@@ -42,35 +41,37 @@ from .models import (
 class IRLClient:
     """Async client for the IRL Engine /irl/authorize endpoint.
 
-    Fetches a fresh heartbeat from MacroPulse before each authorize call
-    and attaches it automatically. The heartbeat ensures L2 anti-replay
-    compliance — do not cache or reuse heartbeats across requests.
+    When ``mta_url`` is set, fetches a fresh signed heartbeat from that
+    regime operator before each authorize call and attaches it (Layer 2
+    anti-replay; never cache or reuse heartbeats). Leave it unset (or "")
+    for an IRL server without a regime operator (``MTA_MODE=none``), which
+    checks agent caps only and needs no heartbeat.
     """
 
     def __init__(
         self,
         irl_url: str,
         api_token: str,
-        mta_url: str,
+        mta_url: Optional[str] = None,
         timeout: float = 5.0,
         max_retries: int = 3,
         backoff_base: float = 0.5,
     ) -> None:
         self._irl_url = irl_url.rstrip("/")
-        self._mta_url = mta_url.rstrip("/")
+        self._mta_url = (mta_url or "").rstrip("/")
         self._headers = {"Authorization": f"Bearer {api_token}"}
         self._http = httpx.AsyncClient(timeout=timeout)
         self._max_retries = max_retries
         self._backoff_base = backoff_base
 
     async def authorize(self, req: AuthorizeRequest) -> AuthorizeResult:
-        """Fetch a fresh heartbeat and submit a trade intent for authorization.
+        """Submit a trade intent for authorization (with a fresh heartbeat if an MTA is set).
 
         Raises:
             httpx.HTTPStatusError: on 4xx/5xx from IRL Engine
-            RuntimeError: if heartbeat fetch fails
+            RuntimeError: if an MTA is configured and the heartbeat fetch fails
         """
-        hb = await self._fetch_heartbeat()
+        hb = await self._fetch_heartbeat() if self._mta_url else None
 
         if req.agent_valid_time == 0:
             req.agent_valid_time = int(time.time() * 1000)
@@ -175,7 +176,7 @@ class IRLClient:
             )
         return resp.json()
 
-    def _build_body(self, req: AuthorizeRequest, heartbeat: dict) -> dict:
+    def _build_body(self, req: AuthorizeRequest, heartbeat: Optional[dict]) -> dict:
         # Match the AuthorizeRequest JSON schema expected by the IRL Engine.
         # TradeAction variants are serialized as tagged JSON: {"Long": qty}
         action_value: object
@@ -205,8 +206,9 @@ class IRLClient:
             "multiplier": req.multiplier,
             "reduce_only": req.reduce_only,
             "agent_valid_time": req.agent_valid_time,
-            "heartbeat": heartbeat,
         }
+        if heartbeat is not None:
+            body["heartbeat"] = heartbeat
 
         body["client_order_id"] = req.client_order_id or ""
 

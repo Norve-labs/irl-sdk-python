@@ -260,3 +260,42 @@ async def test_get_trace_chain_returns_chain():
 async def test_context_manager_closes_client():
     async with _make_client() as client:
         assert client is not None
+
+
+# ---------------------------------------------------------------------------
+# Optional MTA: servers without a regime operator (MTA_MODE=none)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mta_url", [None, ""])
+async def test_authorize_without_mta_sends_no_heartbeat(mta_url):
+    client = IRLClient(irl_url="http://irl.test", api_token="test-token", mta_url=mta_url)
+    fetch = AsyncMock(return_value=FAKE_HEARTBEAT)
+    post = AsyncMock(return_value=_make_response(200, FAKE_AUTHORIZE_RESPONSE))
+    with patch.object(client, "_fetch_heartbeat", new=fetch), patch.object(client._http, "post", new=post):
+        result = await client.authorize(AuthorizeRequest(**BASE_REQ))
+
+    assert result.authorized is True
+    fetch.assert_not_awaited()
+    assert "heartbeat" not in post.call_args.kwargs["json"]
+    await client.close()
+
+
+@pytest.mark.asyncio
+async def test_authorize_with_mta_attaches_heartbeat():
+    client = _make_client()
+    post = AsyncMock(return_value=_make_response(200, FAKE_AUTHORIZE_RESPONSE))
+    with (
+        patch.object(client, "_fetch_heartbeat", new=AsyncMock(return_value=FAKE_HEARTBEAT)),
+        patch.object(client._http, "post", new=post),
+    ):
+        await client.authorize(AuthorizeRequest(**BASE_REQ))
+
+    assert post.call_args.kwargs["json"]["heartbeat"] == FAKE_HEARTBEAT
+    await client.close()
+
+
+def test_two_positional_args_are_enough():
+    client = IRLClient("http://irl.test", "test-token")
+    assert client._mta_url == ""

@@ -5,6 +5,14 @@ Follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Semantic V
 
 ---
 
+## [0.3.0] — unreleased
+
+### Changed
+- `mta_url` is optional (default `None`). Without it, `authorize()` fetches no heartbeat and sends none, for IRL servers with no regime operator (`MTA_MODE=none`, `LAYER2_ENABLED=false`). Passing an MTA URL works exactly as before. `""` now really disables the fetch, as 0.2.0's notes promised.
+
+### Added
+- Retries with exponential backoff on 5xx, `parent_trace_id` trace linking, extended order types, `bind_execution()` / `get_trace()` / `get_trace_chain()` (already in the code and README; first PyPI release with them).
+
 ## [0.2.0] — 2026-04-14
 
 ### Added

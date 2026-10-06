@@ -16,7 +16,7 @@ import os
 from irl_sdk import IRLClient, AuthorizeRequest, TradeAction, OrderType
 
 IRL_URL = os.getenv("IRL_URL", "https://irl.macropulse.live")
-MTA_URL = os.getenv("MTA_URL", "https://api.macropulse.live")
+MTA_URL = os.getenv("MTA_URL")  # only for IRL servers with a regime operator
 API_TOKEN = os.getenv("IRL_API_TOKEN", "demo-readonly-1a1bb53fb4bcb5f1ca2c2f48808a35ba")
 
 # Stable demo agent — must be registered in the IRL Engine MAR.
@@ -26,7 +26,7 @@ MODEL_HASH = "cee60d4e409bd88b5e1998ef6ac078498491616a3a321bc76399b94784c4f283" 
 
 async def main() -> None:
     print(f"IRL Engine : {IRL_URL}")
-    print(f"MTA        : {MTA_URL}")
+    print(f"MTA        : {MTA_URL or 'none (agent caps only)'}")
     print(f"Agent ID   : {AGENT_ID}")
     print(f"Model hash : {MODEL_HASH[:16]}...")
     print()
