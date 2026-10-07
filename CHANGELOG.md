@@ -39,5 +39,5 @@ Follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Semantic V
 - End-to-end demo (`examples/demo_e2e.py`) against the public sandbox
 - Full error code documentation
 
-[0.2.0]: https://github.com/horkos-labs/irl-sdk-python/releases/tag/v0.2.0
-[0.1.0]: https://github.com/horkos-labs/irl-sdk-python/releases/tag/v0.1.0
+[0.2.0]: https://github.com/norve-labs/irl-sdk-python/releases/tag/v0.2.0
+[0.1.0]: https://github.com/norve-labs/irl-sdk-python/releases/tag/v0.1.0

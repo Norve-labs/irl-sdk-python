@@ -1,5 +1,5 @@
 <div align="center">
-<sub>IRL by <a href="https://github.com/horkos-labs">Horkos Labs</a></sub>
+<sub>IRL by <a href="https://github.com/norve-labs">Norve</a></sub>
 </div>
 
 # irl-sdk — Python SDK for the IRL Engine
@@ -7,7 +7,7 @@
 [![PyPI version](https://img.shields.io/badge/pypi-0.3.0-blue)](https://pypi.org/project/irl-sdk/)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://pypi.org/project/irl-sdk/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![IRL Engine](https://img.shields.io/badge/IRL%20Engine-v1.2.0%20compatible-brightgreen)](https://github.com/horkos-labs/irl)
+[![IRL Engine](https://img.shields.io/badge/IRL%20Engine-v1.2.0%20compatible-brightgreen)](https://github.com/norve-labs/irl)
 
 Async Python client for the [IRL Engine](https://irl.macropulse.live) — the cryptographic
 pre-execution compliance gateway for autonomous AI trading agents.
@@ -213,10 +213,10 @@ leave `mta_url` unset: no heartbeat is sent and only the agent's own mandate app
 
 | Repo | Description |
 |---|---|
-| [irl](https://github.com/horkos-labs/irl) | Core IRL Engine (FSL-1.1-ALv2) |
-| [irl-gateway](https://github.com/horkos-labs/irl-gateway) | MCP server: AI agents trade through IRL (`pip install irl-gateway`) |
-| [irl-sdk-ts](https://github.com/horkos-labs/irl-sdk-ts) | TypeScript/Node.js SDK |
-| [irl-public-docs](https://github.com/horkos-labs/irl-public-docs) | Public documentation hub |
+| [irl](https://github.com/norve-labs/irl) | Core IRL Engine (FSL-1.1-ALv2) |
+| [irl-gateway](https://github.com/norve-labs/irl-gateway) | MCP server: AI agents trade through IRL (`pip install irl-gateway`) |
+| [irl-sdk-ts](https://github.com/norve-labs/irl-sdk-ts) | TypeScript/Node.js SDK |
+| [irl-public-docs](https://github.com/norve-labs/irl-public-docs) | Public documentation hub |
 | [MacroPulse](https://macropulse.live) | One optional signed regime source (MTA) |
 
 ## License
@@ -226,5 +226,5 @@ MIT
 ---
 
 <div align="center">
-<sub>IRL by <a href="https://github.com/horkos-labs">Horkos Labs</a> · <a href="https://irl.macropulse.live">irl.macropulse.live</a></sub>
+<sub>IRL by <a href="https://github.com/norve-labs">Norve</a> · <a href="https://irl.macropulse.live">irl.macropulse.live</a></sub>
 </div>
