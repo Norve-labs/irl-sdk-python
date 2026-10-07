@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![IRL Engine](https://img.shields.io/badge/IRL%20Engine-v1.2.0%20compatible-brightgreen)](https://github.com/norve-labs/irl)
 
-Async Python client for the [IRL Engine](https://irl.macropulse.live) — the cryptographic
+Async Python client for the [IRL Engine](https://norve.dev) — the cryptographic
 pre-execution compliance gateway for autonomous AI trading agents.
 
 - Optionally fetches a signed Layer 2 heartbeat from a regime operator (MTA), when your IRL server uses one
@@ -38,7 +38,7 @@ Requires Python 3.10+.
 import asyncio
 from irl_sdk import IRLClient, AuthorizeRequest, TradeAction, OrderType
 
-IRL_URL   = "https://irl.macropulse.live"
+IRL_URL   = "https://norve.dev"
 API_TOKEN = "your-irl-api-token"
 AGENT_ID  = "your-agent-uuid"           # from POST /irl/agents
 MODEL_HASH = "your-model-sha256-hex"    # 64-char hex
@@ -81,7 +81,7 @@ python demo_e2e.py
 
 Expected output:
 ```
-IRL Engine : https://irl.macropulse.live
+IRL Engine : https://norve.dev
 MTA        : https://api.macropulse.live
 Agent ID   : 00000000-0000-4000-a000-000000000001
 
@@ -226,5 +226,5 @@ MIT
 ---
 
 <div align="center">
-<sub>IRL by <a href="https://github.com/norve-labs">Norve</a> · <a href="https://irl.macropulse.live">irl.macropulse.live</a></sub>
+<sub>IRL by <a href="https://github.com/norve-labs">Norve</a> · <a href="https://norve.dev">norve.dev</a></sub>
 </div>

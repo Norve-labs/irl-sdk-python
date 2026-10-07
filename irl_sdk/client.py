@@ -3,7 +3,7 @@ IRLClient — send authorized trade intents to the IRL Engine.
 
 Usage:
     client = IRLClient(
-        irl_url="https://irl.macropulse.live",
+        irl_url="https://norve.dev",
         api_token="your-token",
     )
 
