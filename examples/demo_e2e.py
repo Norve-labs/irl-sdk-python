@@ -15,7 +15,7 @@ import os
 
 from irl_sdk import IRLClient, AuthorizeRequest, TradeAction, OrderType
 
-IRL_URL = os.getenv("IRL_URL", "https://irl.macropulse.live")
+IRL_URL = os.getenv("IRL_URL", "https://norve.dev")
 MTA_URL = os.getenv("MTA_URL")  # only for IRL servers with a regime operator
 API_TOKEN = os.getenv("IRL_API_TOKEN", "demo-readonly-1a1bb53fb4bcb5f1ca2c2f48808a35ba")
 
