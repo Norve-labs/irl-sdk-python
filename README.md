@@ -1,10 +1,5 @@
 <div align="center">
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/brand/logo-mono.svg">
-  <img src=".github/brand/logo-green.svg" alt="MacroPulse" width="72" height="72">
-</picture>
-
-<sub>Part of the <a href="https://github.com/macropulse-lab/macropulse-platform">MacroPulse platform</a></sub>
+<sub>IRL by <a href="https://github.com/horkos-labs">Horkos Labs</a></sub>
 </div>
 
 # irl-sdk — Python SDK for the IRL Engine
@@ -12,7 +7,7 @@
 [![PyPI version](https://img.shields.io/badge/pypi-0.3.0-blue)](https://pypi.org/project/irl-sdk/)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://pypi.org/project/irl-sdk/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![IRL Engine](https://img.shields.io/badge/IRL%20Engine-v1.2.0%20compatible-brightgreen)](https://github.com/macropulse-lab/irl)
+[![IRL Engine](https://img.shields.io/badge/IRL%20Engine-v1.2.0%20compatible-brightgreen)](https://github.com/horkos-labs/irl)
 
 Async Python client for the [IRL Engine](https://irl.macropulse.live) — the cryptographic
 pre-execution compliance gateway for autonomous AI trading agents.
@@ -217,10 +212,10 @@ substitutes a zero heartbeat internally.
 
 | Repo | Description |
 |---|---|
-| [irl](https://github.com/macropulse-lab/irl) | Core IRL Engine (FSL-1.1-ALv2) |
-| [irl-gateway](https://github.com/macropulse-lab/irl-gateway) | MCP server: AI agents trade through IRL (`pip install irl-gateway`) |
-| [irl-sdk-ts](https://github.com/macropulse-lab/irl-sdk-ts) | TypeScript/Node.js SDK |
-| [irl-public-docs](https://github.com/macropulse-lab/irl-public-docs) | Public documentation hub |
+| [irl](https://github.com/horkos-labs/irl) | Core IRL Engine (FSL-1.1-ALv2) |
+| [irl-gateway](https://github.com/horkos-labs/irl-gateway) | MCP server: AI agents trade through IRL (`pip install irl-gateway`) |
+| [irl-sdk-ts](https://github.com/horkos-labs/irl-sdk-ts) | TypeScript/Node.js SDK |
+| [irl-public-docs](https://github.com/horkos-labs/irl-public-docs) | Public documentation hub |
 | [MacroPulse](https://macropulse.live) | One optional signed regime source (MTA) |
 
 ## License
@@ -230,5 +225,5 @@ MIT
 ---
 
 <div align="center">
-<sub>Part of the <a href="https://github.com/macropulse-lab/macropulse-platform">MacroPulse platform</a> · <a href="https://macropulse.live">macropulse.live</a> · <a href="https://macropulse.live/irl">IRL Engine</a></sub>
+<sub>IRL by <a href="https://github.com/horkos-labs">Horkos Labs</a> · <a href="https://irl.macropulse.live">irl.macropulse.live</a></sub>
 </div>
